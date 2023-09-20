@@ -1,1 +1,192 @@
+#ALUMNO: Tomas I. Fragnito
+
+import pygame
+from datos import*
+from constantes import*
+from funciones import*
+
+pygame.init()
+
+pygame.mixer.init()
+pygame.mixer.music.set_volume(1)
+game_music = pygame.mixer.Sound("Preguntados/music/game_music.wav")
+interludio_music = pygame.mixer.Sound("Preguntados/music/interludio_music.wav")
+intro_music = pygame.mixer.Sound("Preguntados/music/intro_music.wav")
+song_win = pygame.mixer.Sound("Preguntados/music/song_win.wav")
+song_good_election = pygame.mixer.Sound("Preguntados/music/song_good_election.wav")
+song_loser = pygame.mixer.Sound("Preguntados/music/song_loser.wav")
+
+flag = False
+contador = 0
+flag_true = True
+posicion = 0
+puntuacion = 0
+respuesta = ""
+correcta = ""
+running = True
+eleccion = "predeterminado"
+
+#defino la pantalla
+pantalla = pygame.display.set_mode((ANCHO_VENTANA,ALTO_VENTANA)) #tamaño de pantalla
+pygame.display.set_caption("PyGame") #titulo
+
+#defino imagen
+imagen = pygame.image.load("Preguntados/Preguntados.webp") 
+imagen = pygame.transform.scale(imagen,(250,250))
+
+
+pregunta = lista[posicion]["pregunta"]
+respuesta_a = lista[posicion]["a"]
+respuesta_b = lista[posicion]["b"]
+respuesta_c = lista[posicion]["c"]
+
+lista_pregunta = obtener_pregunta_respuesta(lista,"pregunta")
+lista_respuesta_a = obtener_pregunta_respuesta(lista,"a")
+lista_respuesta_b = obtener_pregunta_respuesta(lista,"b")
+lista_respuesta_c = obtener_pregunta_respuesta(lista,"c")
+
+intro_music.play()
+
+tick = pygame.USEREVENT + 0
+pygame.time.set_timer(tick,4350)
+
+while running: #intro
+    lista_eventos = pygame.event.get()
+    
+    pantalla.fill(COLOR_AZUL)   
+    mostrar_texto(pantalla,"Comic_Sans","PREGUNTADOS",COLOR_AMARILLO,50,200,250)
+    mostrar_texto(pantalla,"Comic_Sans","% "+"cargando juego",COLOR_AMARILLO,35,200,320)
+    
+    for evento in lista_eventos:
+        if evento.type == pygame.QUIT:
+            running = False  
+            
+        if evento.type == tick:
+            running = False  
+
+    pygame.display.flip()
+
+running = True
+
+intro_music.stop()
+game_music.play(-1)
+
+while running: #juego
+    lista_eventos = pygame.event.get()
+
+    
+    pantalla.fill(COLOR_AZUL)        
+    pantalla.blit(imagen,[10,10])
+    pygame.draw.rect(pantalla,COLOR_AMARILLO,(300,20,200,100))#left, arriba, ancho y alto
+    pygame.draw.rect(pantalla,COLOR_AMARILLO,(280,520,220,60))
+    
+    
+    pintar_rect_respuesta(pantalla,respuesta,correcta,eleccion)
+
+
+    for evento in lista_eventos:
+        
+        if evento.type == pygame.QUIT:
+            running = False    
+            
+        if evento.type == pygame.MOUSEBUTTONDOWN:
+            posicion_click = list(evento.pos)
+            print(posicion_click)
+
+            #boton Pregunta
+            if (posicion_click[0]>300 and posicion_click[0]<500) and (posicion_click[1]>20 and posicion_click[1]<120) and flag:
+                eleccion = "predeterminado"
+                flag = False
+                if posicion == len(lista)-1:
+                    posicion = 0
+                else:
+                    posicion = posicion + 1
+                    
+                pregunta = lista_pregunta[posicion]
+                respuesta_a = lista_respuesta_a[posicion]
+                respuesta_b = lista_respuesta_b[posicion]
+                respuesta_c = lista_respuesta_c[posicion]
+            
+            #respuestas
+            if (posicion_click[0]>100 and posicion_click[0]<680) and (posicion_click[1]>435 and posicion_click[1]<484)and flag_true:
+                
+                if (posicion_click[0]>100 and posicion_click[0]<280) and (posicion_click[1]>435 and posicion_click[1]<484): #ancho x altura
+                    eleccion = "a"
+                    correcta = obtener_respuesta_correcta(lista,"correcta",posicion)
+                    respuesta = validar_respuesta(correcta,"a")
+                    pintar_rect_respuesta(pantalla,respuesta,correcta,eleccion)
+                    
+                if (posicion_click[0]>300 and posicion_click[0]<482) and (posicion_click[1]>435 and posicion_click[1]<484):
+                    eleccion = "b"
+                    correcta=obtener_respuesta_correcta(lista,"correcta",posicion)
+                    respuesta = validar_respuesta(correcta,"b")
+                    pintar_rect_respuesta(pantalla,respuesta,correcta,eleccion)
+                    
+                if (posicion_click[0]>500 and posicion_click[0]<680) and (posicion_click[1]>435 and posicion_click[1]<484):
+                    eleccion = "c"
+                    correcta=obtener_respuesta_correcta(lista,"correcta",posicion)
+                    respuesta = validar_respuesta(correcta,"c")
+                    pintar_rect_respuesta(pantalla,respuesta,correcta,eleccion)
+    
+                    
+                if respuesta:
+                    song_good_election.play()
+                    puntuacion = puntuacion + 10
+                    flag = True
+                else:
+                    song_loser.play()
+                    contador = contador + 1
+                    print(contador)
+                    if contador == 2:
+                        flag_true = False
+                        print("vuelva a intentar")
+                        
+            #reiniciar 
+            if (posicion_click[0]>280 and posicion_click[0]<500) and (posicion_click[1]>520 and posicion_click[1]<580):
+                posicion = 0
+                puntuacion = 0
+                contador = 0
+                flag_true = True
+                eleccion = "predeterminado"
+                
+                pregunta = lista_pregunta[posicion]
+                respuesta_a = lista_respuesta_a[posicion]
+                respuesta_b = lista_respuesta_b[posicion]
+                respuesta_c = lista_respuesta_c[posicion]
+
+    if flag:
+        mostrar_texto(pantalla,"Arial","Pregunta",COLOR_NEGRO,30,350,50)
+    else:
+        mostrar_texto(pantalla,"Arial","Pregunta",COLOR_GRIS,30,350,50)
+
+    #textos
+    if puntuacion == 170:
+        mostrar_texto(pantalla,"Comic_Sans","PREGUNTADOS",COLOR_AMARILLO,50,200,250)
+        mostrar_texto(pantalla,"Comic_Sans","WIN",COLOR_AMARILLO,50,350,300)
+        mostrar_texto(pantalla,"Arial","Reiniciar",COLOR_NEGRO,30,340,530)
+        if flag_true:
+            game_music.stop()
+            song_win.play()  
+            flag_true = False
+    elif flag_true: #texto juego
+        mostrar_texto(pantalla,"Arial",str(puntuacion),COLOR_GRIS,30, 300, 180)
+        mostrar_texto(pantalla,"Arial","SCORE",COLOR_GRIS,30,300,140)
+        mostrar_texto(pantalla,"Arial","Reiniciar",COLOR_GRIS,30,340,530)
+        mostrar_texto(pantalla,"Arial",str(pregunta),COLOR_GRIS,30, 50, 300)
+
+        mostrar_texto(pantalla,"Arial",str(respuesta_a),COLOR_GRIS,25, 110, 444)
+        mostrar_texto(pantalla,"Arial",str(respuesta_b),COLOR_GRIS,25, 310, 445)
+        mostrar_texto(pantalla,"Arial",str(respuesta_c),COLOR_GRIS,25, 510, 444)
+    else: #GAME OVER
+        mostrar_texto(pantalla,"Arial",str(puntuacion),COLOR_GRIS,30, 300, 180)
+        mostrar_texto(pantalla,"Arial","SCORE",COLOR_GRIS,30,300,140)
+        mostrar_texto(pantalla,"Arial","Reiniciar",COLOR_NEGRO,30,340,530)
+        mostrar_texto(pantalla,"Comic_Sans","-GAME OVER-",COLOR_ROJO,40,320,300)
+
+        
+    
+
+    pygame.display.flip()#actualizacion de pantalla
+    
+pygame.quit()
 
