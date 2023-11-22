@@ -28,41 +28,21 @@ def obtener_pregunta_respuesta(lista_recibida:list,pedido:str)->list:
     return lista_pedido
 
 
-def pintar_rect_respuesta(pantalla,respuesta:bool,correcta:list,eleccion:str,):
-    
-    
-    if eleccion == "predeterminado":
-        pygame.draw.rect(pantalla,COLOR_AMARILLO,(100,435,180,50))
-        pygame.draw.rect(pantalla,COLOR_AMARILLO,(300,435,180,50))
-        pygame.draw.rect(pantalla,COLOR_AMARILLO,(500,435,180,50))
-    else:            
-        if respuesta:
-            match correcta:
-                case "a":
-                    pygame.draw.rect(pantalla,COLOR_VERDE,(100,435,180,50))
-                    pygame.draw.rect(pantalla,COLOR_AMARILLO,(300,435,180,50))
-                    pygame.draw.rect(pantalla,COLOR_AMARILLO,(500,435,180,50))
-                case "b":
-                    pygame.draw.rect(pantalla,COLOR_AMARILLO,(100,435,180,50))
-                    pygame.draw.rect(pantalla,COLOR_VERDE,(300,435,180,50))
-                    pygame.draw.rect(pantalla,COLOR_AMARILLO,(500,435,180,50))
-                case "c":
-                    pygame.draw.rect(pantalla,COLOR_AMARILLO,(100,435,180,50))
-                    pygame.draw.rect(pantalla,COLOR_AMARILLO,(300,435,180,50))
-                    pygame.draw.rect(pantalla,COLOR_VERDE,(500,435,180,50))
-        else:
-            match eleccion:
-                case "a":
-                    pygame.draw.rect(pantalla,COLOR_ROJO,(100,435,180,50))
-                    pygame.draw.rect(pantalla,COLOR_AMARILLO,(300,435,180,50))
-                    pygame.draw.rect(pantalla,COLOR_AMARILLO,(500,435,180,50))
-                case "b":
-                    pygame.draw.rect(pantalla,COLOR_AMARILLO,(100,435,180,50))
-                    pygame.draw.rect(pantalla,COLOR_ROJO,(300,435,180,50))
-                    pygame.draw.rect(pantalla,COLOR_AMARILLO,(500,435,180,50))
-                case "c":
-                    pygame.draw.rect(pantalla,COLOR_AMARILLO,(100,435,180,50))
-                    pygame.draw.rect(pantalla,COLOR_AMARILLO,(300,435,180,50))
-                    pygame.draw.rect(pantalla,COLOR_ROJO,(500,435,180,50))
-        
-    
+def pintar_rect_respuesta(pantalla, eleccion, respuesta_correcta) -> list:
+
+    if respuesta_correcta:
+        match eleccion: #bien
+            case "a":
+                pygame.draw.rect(pantalla,COLOR_VERDE,(100,435,180,50))
+            case "b":
+                pygame.draw.rect(pantalla,COLOR_VERDE,(300,435,180,50))
+            case "c":
+                pygame.draw.rect(pantalla,COLOR_VERDE,(500,435,180,50))
+    else:
+        match eleccion: #mal
+            case "a":
+                pygame.draw.rect(pantalla,COLOR_ROJO,(100,435,180,50))
+            case "b":
+                pygame.draw.rect(pantalla,COLOR_ROJO,(300,435,180,50))
+            case "c":
+                pygame.draw.rect(pantalla,COLOR_ROJO,(500,435,180,50))
