@@ -1,0 +1,141 @@
+#ALUMNO: Tomas I. Fragnito
+
+import pygame
+from objetos import Pregunta
+from datos import lista
+from constantes import *
+from funciones import*
+
+pygame.init()
+
+# Defino la pantalla
+pantalla = pygame.display.set_mode((ANCHO_VENTANA, ALTO_VENTANA))
+pygame.display.set_caption("PyGame")
+
+# Defino la imagen
+imagen = pygame.transform.scale(pygame.image.load("preguntados_but_objetos\Preguntados.webp"), (250, 250))
+
+respuesta_correcta = None
+eleccion = None
+contador = 0
+puntuacion = 0
+posicion = 0
+respondido = True
+boton_pregunta = False
+boton_reinicio = True
+flag_preguntas = True
+resetear_pint_rect = True
+Pregunta_color = COLOR_GRIS
+
+
+running = True
+
+while running: 
+    lista_eventos = pygame.event.get()
+
+    pregunta = lista[posicion]["pregunta"]
+    respuesta_a = lista[posicion]["a"]
+    respuesta_b = lista[posicion]["b"]
+    respuesta_c = lista[posicion]["c"]
+    
+    puntuacion_total = str(puntuacion)
+
+    pantalla.fill(COLOR_AZUL)
+    pantalla.blit(imagen, [10, 10])
+    pygame.draw.rect(pantalla, COLOR_AMARILLO, (300, 20, 200, 100))
+    pygame.draw.rect(pantalla, COLOR_AMARILLO, (280, 520, 220, 60))
+
+    Pregunta.mostrar_rectangulo(pantalla, COLOR_AMARILLO)
+    
+    for evento in lista_eventos:
+        if evento.type == pygame.QUIT:
+            running = False
+
+        if evento.type == pygame.MOUSEBUTTONDOWN:
+            posicion_click = list(evento.pos)
+            print(posicion_click)
+
+            #boton pregunta
+            if (300 < posicion_click[0] < 500) and (20 < posicion_click[1] < 120) and boton_pregunta:
+                resetear_pint_rect = True
+                eleccion = None
+                posicion += 1
+                boton_pregunta = False
+                flag_preguntas = True
+                Pregunta_color = COLOR_GRIS
+
+            #botones con las respuestas
+            if flag_preguntas:
+                if (100 < posicion_click[0] < 280) and (435 < posicion_click[1] < 484):
+                    eleccion = "a" 
+                    respondido = True
+                    
+                elif (300 < posicion_click[0] < 482) and (435 < posicion_click[1] < 484):
+                    eleccion = "b" 
+                    respondido = True
+                    
+                elif (500 < posicion_click[0] < 680) and (435 < posicion_click[1] < 484):
+                    eleccion = "c" 
+                    respondido = True
+
+                respuesta_correcta = Pregunta.optener_respuesta_correcta(lista, posicion, eleccion)
+
+                if respondido:
+                    if respuesta_correcta and flag_preguntas:
+                        boton_pregunta = True
+                        boton_reinicio = False
+                        puntuacion = puntuacion + 10
+                        flag_preguntas = False
+                        Pregunta_color = COLOR_NEGRO
+                    else:
+                        contador += 1
+                    respondido = False
+
+            #boton reinicio
+            if (280 < posicion_click[0] < 500) and (520 < posicion_click[1] < 580) and boton_reinicio:
+                resetear_pint_rect = True
+                boton_reinicio = False
+                eleccion = None 
+                flag_game = True 
+                flag_preguntas = True 
+                posicion = 0
+                contador = 0 
+                puntuacion = 0
+
+    pintar_rect_respuesta(pantalla, eleccion, respuesta_correcta)
+
+    
+    lista_texto = [Pregunta(pantalla, "Arial", "Reiniciar", COLOR_GRIS, 30, 340, 530),
+                    Pregunta(pantalla, "Arial", "SCORE", COLOR_GRIS, 30, 300, 180),
+                    Pregunta(pantalla, "Arial", puntuacion_total, COLOR_GRIS, 30, 300, 140),
+                    Pregunta(pantalla, "Arial", "Pregunta", Pregunta_color, 30, 350, 50),
+                    Pregunta(pantalla, "Arial", respuesta_a, COLOR_GRIS, 25, X_RESPUESTA_A, Y_RESPUESTA),
+                    Pregunta(pantalla, "Arial", respuesta_b, COLOR_GRIS, 25, X_RESPUESTA_B, Y_RESPUESTA),
+                    Pregunta(pantalla, "Arial", respuesta_c, COLOR_GRIS, 25, X_RESPUESTA_C, Y_RESPUESTA),
+                    Pregunta(pantalla, "Arial", pregunta, COLOR_GRIS, 30, Y_PREGUNTA, X_PREGUNTA)]    
+
+    #WIN
+    if puntuacion == 170:
+        boton_pregunta = False
+        lista_texto = [Pregunta(pantalla, "Arial", "PREGUNTADOS WIN", COLOR_VERDE, 40, 350, 300),
+                       Pregunta(pantalla, "Arial", "SCORE", COLOR_GRIS, 30, 300, 180),
+                        Pregunta(pantalla, "Arial", puntuacion_total, COLOR_GRIS, 30, 300, 140)]
+     
+    #OVER
+    if contador == 2:
+        Pregunta_color = COLOR_GRIS
+        boton_reinicio = True
+        flag_preguntas = False
+        eleccion = None
+        lista_texto = [Pregunta(pantalla, "Comic_Sans", "-GAME OVER-", COLOR_ROJO, 40, 350, 300),
+                       Pregunta(pantalla, "Arial", "Reiniciar", COLOR_NEGRO, 30, 340, 530),
+                       Pregunta(pantalla, "Arial", "SCORE", COLOR_GRIS, 30, 300, 180),
+                        Pregunta(pantalla, "Arial", puntuacion_total, COLOR_GRIS, 30, 300, 140)]
+
+    for textos in lista_texto:
+        textos.mostrar_pregunta()
+        
+
+    pygame.display.flip()
+
+pygame.quit()
